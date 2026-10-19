@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Regenerate with: python3 -m trust_model.experiments
+trust_model/results/raw.csv

@@ -1,0 +1,27 @@
+abstract: "An agent-based simulation of a game of basketball. The model implements\
+  \ most components of a standard game of basketball. Additionally, the model allows\
+  \ the user to test for the effect of two separate cognitive biases \u2013 the hot-hand\
+  \ effect and a belief in the team's franchise player.\n"
+authors:
+- affiliation: George Mason
+  email: oldhamma@gmail.com
+  family-names: Oldham
+  given-names: Matthew
+  orcid: https://orcid.org/0000-0002-2440-8444
+cff-version: 1.2.0
+date-released: '2019-02-19'
+identifiers:
+- type: url
+  value: https://www.comses.net/codebases/ed88c9b6-b54e-42c8-b7ae-c16a66dec57f/releases/1.0.0/
+keywords:
+- agent-based model
+- basketball
+- NetLogo
+- sports analytics
+license: MIT
+message: If you use this software, please cite it using the metadata from this file.
+repository-code: https://moldham74.github.io/AussieCAS/sports.html
+title: Drafting agent-based modeling into basketball analytics
+type: software
+url: https://www.comses.net/codebases/ed88c9b6-b54e-42c8-b7ae-c16a66dec57f/releases/1.0.0/
+version: 1.0.0
