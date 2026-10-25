@@ -1,8 +1,12 @@
 # When Teammates Stop Passing: Trust and Cooperation in Basketball
 
 Multiagent systems course project. We study how the length of teammates'
-memory affects passing and scoring, and whether occasionally passing to
-overlooked players prevents lasting exclusion after a run of misses.
+memory affects passing and scoring, whether occasionally passing to
+overlooked players prevents lasting exclusion after a run of misses, and
+which of these strategies are stable when players are partly self-interested.
+
+The model is a repeated Pass-or-Hog game with incomplete information about
+teammates' skill. See [trust_model/GAME_THEORY.md](trust_model/GAME_THEORY.md).
 
 ## Repository layout
 
@@ -16,8 +20,11 @@ overlooked players prevents lasting exclusion after a run of misses.
 ## Quick start
 
 ```bash
+python3 -m trust_model.stage_game               # two-player game solved exactly
 python3 -m trust_model.demo                     # one game, play by play
-python3 -m trust_model.experiments --games 300  # full experiment grid
+python3 -m trust_model.experiments --games 200  # whole-team strategies (~2.5 min)
+python3 -m trust_model.metagame                 # mixed teams: equilibria (~1 min)
+python3 -m trust_model.viz                      # visualiser in the browser (localhost:8000)
 ```
 
 ## Reference model

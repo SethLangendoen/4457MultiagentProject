@@ -34,6 +34,14 @@ def cold_run_recoveries(log: GameLog, cfg: GameConfig) -> List[Optional[int]]:
     return recoveries
 
 
+def utility_by_strategy(log: GameLog) -> Dict[str, List[float]]:
+    """Each strategy's players' payoffs in this game (used by the meta-game)."""
+    out: Dict[str, List[float]] = {}
+    for name, u in zip(log.strategies, log.utilities):
+        out.setdefault(name, []).append(u)
+    return out
+
+
 def summarize_game(log: GameLog, cfg: GameConfig) -> Dict[str, float]:
     n = cfg.n_players
     shots = [0] * n
@@ -48,8 +56,13 @@ def summarize_game(log: GameLog, cfg: GameConfig) -> Dict[str, float]:
     total_passes = max(1, sum(received))
     best = max(range(n), key=lambda j: cfg.skills[j])
 
+    # Cooperation: of the moments when passing truly was better for the team, how often the holder passed.
+    chances = [passed for _, _, better, passed in log.decisions if better]
+
     row = {
         "points_per_possession": sum(log.possession_points) / len(log.possession_points),
+        "cooperation_rate": sum(chances) / len(chances) if chances else float("nan"),
+        "mean_utility": sum(log.utilities) / n,
         "passes_per_possession": len(log.passes) / len(log.possession_points),
         "gini_passes_received": gini(received),
         "gini_shots": gini(shots),

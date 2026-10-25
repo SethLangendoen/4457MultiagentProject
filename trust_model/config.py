@@ -37,6 +37,12 @@ class GameConfig:
     defensive_pressure: float = 0.0     # 0..1, cuts every make probability by this fraction
     possessions_per_game: int = 100     # roughly an NBA team's possessions per game
 
+    # Payoffs (see GAME_THEORY.md). Each player's utility is
+    #   u_i = team_weight * team points + (1 - team_weight) * (own points + assist_credit * assisted points)
+    # team_weight = 1 is a pure team game; below s/b the possession is a Prisoner's Dilemma.
+    team_weight: float = 1.0            # lambda
+    assist_credit: float = 0.0          # a: personal credit for the points a pass sets up
+
     shot_clock: float = 24.0            # [Oldham]
     offensive_rebound_clock: float = 14.0
     setup_time: Tuple[float, float] = (4.0, 8.0)  # seconds to bring the ball up
@@ -72,14 +78,26 @@ class GameConfig:
     def turnover_prob(self) -> float:
         return self.pass_turnover_prob + self.pressure_turnover_bonus * self.defensive_pressure
 
+    @property
+    def selfish_pass_weight(self) -> float:
+        """How much a pass is worth to a purely self-interested passer, per point it sets up."""
+        return self.team_weight + (1 - self.team_weight) * self.assist_credit
+
 
 @dataclass(frozen=True)
 class Strategy:
-    """How every agent on the team remembers and decides."""
+    """How an agent remembers and decides. Agents on one team may use different strategies.
+
+    cooperation:
+      "always"     - acts in the team's interest whatever its payoff (unconditional cooperator)
+      "never"      - myopic best response to its own payoff (hog / always defect)
+      "reciprocal" - cooperates as much as teammates have recently cooperated (memory-k tit-for-tat)
+    """
 
     name: str
-    memory_length: Optional[int] = None  # last k attempts remembered per player; None = whole game
-    exploration: float = 0.0             # chance of passing to the most overlooked teammate
+    memory_length: Optional[int] = None  # last k shots (and k decisions) remembered per player; None = whole game
+    cooperation: str = "always"
+    exploration: float = 0.0             # forgiveness: chance of passing to the most overlooked teammate
     pass_margin: float = 0.2             # pass only if a teammate's look is worth this many more expected points
     prior_strength: float = 3.0          # belief starts as if each player had this many average attempts
     oracle: bool = False                 # baseline: agents know everyone's true skill
@@ -87,8 +105,18 @@ class Strategy:
 
 
 STRATEGIES = {
+    # Unconditional cooperators: the original learning-model strategies.
     "short_memory": Strategy("short_memory", memory_length=5),
     "long_memory": Strategy("long_memory", memory_length=30),
     "short_memory_explore": Strategy("short_memory_explore", memory_length=5, exploration=0.10),
     "oracle": Strategy("oracle", oracle=True),
+    # Strategies for the game: defect, reciprocate, reciprocate with forgiveness.
+    "hog": Strategy("hog", memory_length=5, cooperation="never"),
+    "reciprocator": Strategy("reciprocator", memory_length=5, cooperation="reciprocal"),
+    "forgiving_reciprocator": Strategy("forgiving_reciprocator", memory_length=5,
+                                       cooperation="reciprocal", exploration=0.10),
+    "long_reciprocator": Strategy("long_reciprocator", memory_length=30, cooperation="reciprocal"),
 }
+
+# The strategy set for the meta-game (metagame.py). short_memory is the unconditional cooperator.
+META_STRATEGIES = ("short_memory", "hog", "reciprocator", "forgiving_reciprocator", "long_reciprocator")
